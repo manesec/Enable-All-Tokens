@@ -3,6 +3,8 @@ package main
 import (
     "fmt"
     "golang.org/x/sys/windows"
+    "os"
+    "os/exec"
 )
 
 var tokens = []string{
@@ -44,6 +46,12 @@ var tokens = []string{
 }
 
 func main() {
+
+    if len(os.Args) < 2 {
+        fmt.Println("Usage: go run main.go <command> <args>")
+        return
+    }
+
     hProcess := windows.CurrentProcess()
     var hToken windows.Token
 
@@ -81,5 +89,19 @@ func main() {
             fmt.Printf("The privilege %s was successfully adjusted.\n", token)
         }
     }
-	fmt.Scanln()
+
+
+    command := os.Args[1]
+    args := os.Args[2:]
+
+    cmd := exec.Command(command, args...)
+
+    output, err := cmd.CombinedOutput()
+    if err != nil {
+        fmt.Println("Error:", err)
+        return
+    }
+
+    fmt.Println(string(output))
+
 }
